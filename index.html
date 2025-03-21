@@ -1,106 +1,283 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Calculator</title>
+    <title>Kalkulator Scientific Full Screen</title>
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        * {
             margin: 0;
-            background-color: #f0f0f0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .calculator {
-            background-color: #333;
+
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            gap: 20px;
         }
+
+        .calculator {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
         #display {
             width: 100%;
-            height: 60px;
-            margin-bottom: 10px;
-            font-size: 24px;
-            text-align: right;
-            padding: 5px;
-            background-color: #fff;
+            height: 80px;
+            background: #222;
+            color: #fff;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
+            font-size: 32px;
+            padding: 15px;
+            text-align: right;
+            margin-bottom: 20px;
         }
+
         .buttons {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 10px;
         }
+
         button {
-            padding: 20px;
-            font-size: 20px;
+            padding: 15px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            background: #444;
+            color: #fff;
+            font-size: 18px;
             cursor: pointer;
-            background-color: #666;
-            color: white;
+            transition: all 0.2s;
         }
+
         button:hover {
-            background-color: #999;
+            background: #666;
+            transform: scale(1.05);
         }
-        .operator {
-            background-color: #ff9500;
+
+        .tutorial {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 15px;
+            overflow-y: auto;
         }
-        .equals {
-            background-color: #4cd137;
+
+        .tutorial h2 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+
+        .tutorial-section {
+            margin-bottom: 20px;
+        }
+
+        .tutorial h3 {
+            color: #2196F3;
+            margin: 10px 0;
+        }
+
+        .tutorial ul {
+            padding-left: 20px;
+        }
+
+        .tutorial li {
+            margin: 8px 0;
+        }
+
+        @media (max-width: 1200px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .buttons {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            button {
+                padding: 12px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <input type="text" id="display" readonly>
+        <input type="text" id="display" disabled>
         <div class="buttons">
+            <!-- Baris 1 -->
             <button onclick="clearDisplay()">C</button>
+            <button onclick="backspace()">⌫</button>
             <button onclick="appendToDisplay('(')">(</button>
             <button onclick="appendToDisplay(')')">)</button>
-            <button class="operator" onclick="appendToDisplay('/')">/</button>
-            
+            <button onclick="appendToDisplay('%')">%</button>
+            <button onclick="appendToDisplay('^(')">x^y</button>
+
+            <!-- Baris 2 -->
+            <button onclick="appendToDisplay('sin(')">sin</button>
+            <button onclick="appendToDisplay('cos(')">cos</button>
+            <button onclick="appendToDisplay('tan(')">tan</button>
+            <button onclick="appendToDisplay('abs(')">|x|</button>
+            <button onclick="appendToDisplay('√(')">√</button>
+            <button onclick="appendToDisplay('^(2)')">x²</button>
+
+            <!-- Baris 3 -->
+            <button onclick="appendToDisplay('ln(')">ln</button>
+            <button onclick="appendToDisplay('log(')">log</button>
+            <button onclick="appendToDisplay('*1/')">1/x</button>
+            <button onclick="appendToDisplay('π')">π</button>
+            <button onclick="appendToDisplay('e')">e</button>
+            <button onclick="appendToDisplay('.')">.</button>
+
+            <!-- Baris 4 -->
             <button onclick="appendToDisplay('7')">7</button>
             <button onclick="appendToDisplay('8')">8</button>
             <button onclick="appendToDisplay('9')">9</button>
-            <button class="operator" onclick="appendToDisplay('*')">×</button>
-            
+            <button onclick="appendToDisplay('/')">/</button>
             <button onclick="appendToDisplay('4')">4</button>
             <button onclick="appendToDisplay('5')">5</button>
+
+            <!-- Baris 5 -->
             <button onclick="appendToDisplay('6')">6</button>
-            <button class="operator" onclick="appendToDisplay('-')">-</button>
-            
+            <button onclick="appendToDisplay('*')">×</button>
             <button onclick="appendToDisplay('1')">1</button>
             <button onclick="appendToDisplay('2')">2</button>
             <button onclick="appendToDisplay('3')">3</button>
-            <button class="operator" onclick="appendToDisplay('+')">+</button>
-            
+            <button onclick="appendToDisplay('-')">-</button>
+
+            <!-- Baris 6 -->
             <button onclick="appendToDisplay('0')">0</button>
-            <button onclick="appendToDisplay('.')">.</button>
-            <button class="equals" onclick="calculate()" style="grid-column: span 2">=</button>
+            <button onclick="appendToDisplay('+')">+</button>
+            <button onclick="calculate()" style="grid-column: span 2; background: #4CAF50;">=</button>
         </div>
     </div>
 
+    <div class="tutorial">
+        <h2>📚 Tutorial Penggunaan</h2>
+        
+        <div class="tutorial-section">
+            <h3>🔢 Operasi Dasar</h3>
+            <ul>
+                <li>Penjumlahan: 2 + 3 = 5</li>
+                <li>Pengurangan: 5 - 2 = 3</li>
+                <li>Perkalian: 3 × 4 = 12</li>
+                <li>Pembagian: 12 ÷ 4 = 3</li>
+            </ul>
+        </div>
+
+        <div class="tutorial-section">
+            <h3>⚛ Fungsi Scientific</h3>
+            <ul>
+                <li>Sin/Cos/Tan: sin(π/2) = 1</li>
+                <li>Logaritma: log(100) = 2</li>
+                <li>Natural Log: ln(e) = 1</li>
+                <li>Akar Kuadrat: √(9) = 3</li>
+                <li>Pangkat: 2^3 = 8</li>
+                <li>Nilai Mutlak: abs(-5) = 5</li>
+            </ul>
+        </div>
+
+        <div class="tutorial-section">
+            <h3>📌 Konstanta</h3>
+            <ul>
+                <li>π ≈ 3.1415926536</li>
+                <li>e ≈ 2.7182818285</li>
+            </ul>
+        </div>
+
+        <div class="tutorial-section">
+            <h3>⚠ Catatan Penting</h3>
+            <ul>
+                <li>Gunakan tanda kurung untuk operasi kompleks</li>
+                <li>Satuan sudut dalam radian</li>
+                <li>Tekan ⌫ untuk menghapus karakter terakhir</li>
+                <li>Tekan C untuk menghapus semua</li>
+            </ul>
+        </div>
+    </div>
     <script>
         const display = document.getElementById('display');
-
+        
         function appendToDisplay(value) {
             display.value += value;
         }
-
+    
         function clearDisplay() {
             display.value = '';
         }
-
+    
+        function backspace() {
+            display.value = display.value.slice(0, -1);
+        }
+    
         function calculate() {
             try {
-                display.value = eval(display.value);
+                let expression = display.value
+                    .replace(/\^/g, '')
+                    .replace(/√\(/g, 'sqrt(')
+                    .replace(/abs\(/g, 'Math.abs(')
+                    // Konversi derajat ke radian untuk fungsi trigonometri
+                    .replace(/(sin|cos|tan)\(([^)]+)\)/g, (match, func, angle) => {
+                        const numAngle = parseFloat(angle);
+                        if (isNaN(numAngle)) throw new Error("Input sudut tidak valid");
+                        return Math.${func}(${numAngle} * Math.PI / 180);
+                    })
+                    // Validasi fungsi logaritma
+                    .replace(/(ln|log|sqrt)\(([^)]+)\)/g, (match, func, arg) => {
+                        const numArg = parseFloat(arg);
+                        if (isNaN(numArg)) throw new Error(Input ${func} tidak valid);
+                        
+                        if (func === 'ln' || func === 'log') {
+                            if (numArg <= 0) throw new Error(${func} input harus positif);
+                            return func === 'ln' ? Math.log(${numArg}) : Math.log10(${numArg});
+                        }
+                        
+                        if (func === 'sqrt' && numArg < 0) {
+                            throw new Error("Akar dari nilai negatif");
+                        }
+                        return Math.sqrt(${numArg});
+                    })
+                    .replace(/π/g, 'Math.PI')
+                    .replace(/e/g, 'Math.E')
+                    // Validasi pembagian dengan nol
+                    .replace(/(.\/0[^.]|.\/0$)/g, () => {
+                        throw new Error("Pembagian dengan nol");
+                    });
+    
+                const result = eval(expression);
+                
+                if (isNaN(result) || !isFinite(result)) {
+                    throw new Error("Hasil tidak terdefinisi");
+                }
+                
+                display.value = Number.isInteger(result) ? result : result.toFixed(6);
             } catch (error) {
-                display.value = 'Error';
+                const errorMessages = {
+                    "Input sudut tidak valid": "Error: Sudut invalid",
+                    "Input ln tidak valid": "Error: ln invalid",
+                    "ln input harus positif": "Error: ln(+)",
+                    "log input harus positif": "Error: log(+)",
+                    "Akar dari nilai negatif": "Error: √(-)",
+                    "Pembagian dengan nol": "Error: /0",
+                    "Hasil tidak terdefinisi": "Error: NaN"
+                };
+                
+                display.value = errorMessages[error.message] || "Error";
+                setTimeout(() => clearDisplay(), 1000);
             }
         }
     </script>
