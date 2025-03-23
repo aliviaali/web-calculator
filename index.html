@@ -28,6 +28,7 @@
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
         }
 
         #display {
@@ -68,6 +69,31 @@
         .equal {
             background: #4CAF50;
         }
+
+        .history {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .history h3 {
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+
+        #historyList {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #historyList li {
+            padding: 5px 0;
+            border-bottom: 1px solid #444;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -83,9 +109,9 @@
             <button onclick="appendToDisplay('Math.tan(')">tan</button>
             <button onclick="appendToDisplay('Math.log10(')">log</button>
             <button onclick="appendToDisplay('Math.sqrt(')">√</button>
-            <button onclick="appendToDisplay('Math.pow(')">x^y</button>
-            <button onclick="appendToDisplay('1/')">1/x</button>
-            <button onclick="appendToDisplay('%')">%</button>
+            <button onclick="appendToDisplay('**')">x^y</button>
+            <button onclick="reciprocal()">1/x</button>
+            <button onclick="appendToDisplay('/100')">%</button>
             <button onclick="appendToDisplay('7')">7</button>
             <button onclick="appendToDisplay('8')">8</button>
             <button onclick="appendToDisplay('9')">9</button>
@@ -105,33 +131,88 @@
         </div>
     </div>
 
+    <div class="history">
+        <h3>Riwayat</h3>
+        <ul id="historyList"></ul>
+    </div>
+
     <script>
         const display = document.getElementById('display');
+        let history = JSON.parse(localStorage.getItem('calculatorHistory') || '[]');
         
+        // Load history on page load
+        updateHistoryDisplay();
+
         function appendToDisplay(value) {
             display.value += value;
         }
-    
+
         function clearDisplay() {
             display.value = '';
         }
-    
+
         function backspace() {
             display.value = display.value.slice(0, -1);
         }
-    
+
+        function reciprocal() {
+            try {
+                const currentValue = evaluateExpression(display.value);
+                const result = 1 / currentValue;
+                display.value = formatResult(result);
+                addToHistory(`1/(${display.value})`, result);
+            } catch (error) {
+                showError();
+            }
+        }
+
         function calculate() {
             try {
-                let expression = display.value;
-                expression = expression.replace(/Math.pow\(([^,]+),([^\)]+)\)/g, 'Math.pow($1, $2)');
-                
-                // Evaluasi ekspresi dengan keamanan tambahan
-                const result = Function(`'use strict'; return (${expression})`)();
-                display.value = Number.isInteger(result) ? result : result.toFixed(6);
+                const originalExpression = display.value;
+                const result = evaluateExpression(originalExpression);
+                display.value = formatResult(result);
+                addToHistory(originalExpression, result);
             } catch (error) {
-                display.value = "Error";
-                setTimeout(() => clearDisplay(), 1000);
+                showError();
             }
+        }
+
+        function evaluateExpression(expression) {
+            // Auto-close parentheses
+            const open = (expression.match(/\(/g) || []).length;
+            const close = (expression.match(/\)/g) || []).length;
+            if (open > close) expression += ')'.repeat(open - close);
+
+            // Replace Math.PI typo
+            expression = expression.replace(/Math.PI/g, 'Math.PI');
+
+            // Convert percentage
+            expression = expression.replace(/%/g, '/100');
+
+            return Function(`'use strict'; return (${expression})`)();
+        }
+
+        function formatResult(result) {
+            return Number.isInteger(result) ? result : result.toFixed(6);
+        }
+
+        function addToHistory(expression, result) {
+            history.push({ expression, result });
+            if (history.length > 10) history.shift();
+            localStorage.setItem('calculatorHistory', JSON.stringify(history));
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = history
+                .map(entry => `<li>${entry.expression} = ${entry.result}</li>`)
+                .join('');
+        }
+
+        function showError() {
+            display.value = "Error";
+            setTimeout(clearDisplay, 1000);
         }
     </script>
 </body>
